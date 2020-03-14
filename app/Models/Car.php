@@ -60,10 +60,15 @@ class Car extends Model
      * @var array
      */
     public static $rules = [
-
+        'name' => 'required|string|min:2|max:50',
+        'color' => 'required|string|min:4|max:50',
+        'price' => 'required|integer',
+        'release_year' => 'string',
+        'brand_id' => 'required|integer|exists:car_brands,id'
     ];
 
     public function brand() {
-        return $this->hasOne(Brand::class);
+        return $this->belongsTo(Brand::class);
     }
+
 }
