@@ -5,10 +5,11 @@ namespace App\Http\Controllers\API;
 use App\Http\Requests\API\CreateEmployeeAPIRequest;
 use App\Http\Requests\API\UpdateEmployeeAPIRequest;
 use App\Models\Employee;
+use App\Models\User;
 use App\Repositories\EmployeeRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AppBaseController;
-use Response;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class EmployeeController
@@ -23,6 +24,12 @@ class EmployeeAPIController extends AppBaseController
     public function __construct(EmployeeRepository $employeeRepo)
     {
         $this->employeeRepository = $employeeRepo;
+        $this->middleware('auth.jwt', [
+            'except' => [
+                'index',
+                'show'
+            ]
+        ]);
     }
 
     /**
@@ -53,9 +60,17 @@ class EmployeeAPIController extends AppBaseController
      */
     public function store(CreateEmployeeAPIRequest $request)
     {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (!$user->can('create', Employee::class)) {
+            return $this->sendError('Forbidden', 403);
+        }
+
         $input = $request->all();
 
-        $employee = $this->employeeRepository->create($input);
+        /** @var Employee $employee */
+        $employee = Employee::create($input);
 
         return $this->sendResponse($employee->toArray(), 'Employee saved successfully');
     }
@@ -71,7 +86,7 @@ class EmployeeAPIController extends AppBaseController
     public function show($id)
     {
         /** @var Employee $employee */
-        $employee = $this->employeeRepository->find($id);
+        $employee = Employee::find($id);
 
         if (empty($employee)) {
             return $this->sendError('Employee not found');
@@ -91,16 +106,17 @@ class EmployeeAPIController extends AppBaseController
      */
     public function update($id, UpdateEmployeeAPIRequest $request)
     {
-        $input = $request->all();
-
         /** @var Employee $employee */
-        $employee = $this->employeeRepository->find($id);
-
-        if (empty($employee)) {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (empty($employee = Employee::find($id))) {
             return $this->sendError('Employee not found');
+        } else if (!$user->can('update', $employee)) {
+            return $this->sendError('Forbidden', 403);
         }
-
-        $employee = $this->employeeRepository->update($input, $id);
+        $input = $request->all();
+        $employee->update($input);
 
         return $this->sendResponse($employee->toArray(), 'Employee updated successfully');
     }
@@ -118,10 +134,13 @@ class EmployeeAPIController extends AppBaseController
     public function destroy($id)
     {
         /** @var Employee $employee */
-        $employee = $this->employeeRepository->find($id);
-
-        if (empty($employee)) {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (empty($employee = Employee::find($id))) {
             return $this->sendError('Employee not found');
+        } else if (!$user->can('delete', $employee)) {
+            return $this->sendError('Forbidden', 403);
         }
 
         $employee->delete();

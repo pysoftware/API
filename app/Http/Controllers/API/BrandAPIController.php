@@ -5,9 +5,11 @@ namespace App\Http\Controllers\API;
 use App\Http\Requests\API\CreateBrandAPIRequest;
 use App\Http\Requests\API\UpdateBrandAPIRequest;
 use App\Models\Brand;
+use App\Models\User;
 use App\Repositories\BrandRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AppBaseController;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class BrandController
@@ -22,6 +24,12 @@ class BrandAPIController extends AppBaseController
     public function __construct(BrandRepository $brandRepo)
     {
         $this->brandRepository = $brandRepo;
+        $this->middleware('auth.jwt', [
+            'except' => [
+                'index',
+                'show'
+            ]
+        ]);
     }
 
     /**
@@ -52,9 +60,17 @@ class BrandAPIController extends AppBaseController
      */
     public function store(CreateBrandAPIRequest $request)
     {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (!$user->can('create', Brand::class)) {
+            return $this->sendError('Forbidden', 403);
+        }
+
         $input = $request->all();
 
-        $brand = $this->brandRepository->create($input);
+        /** @var Brand $brand */
+        $brand = Brand::create($input);
 
         return $this->sendResponse($brand->toArray(), 'Brand saved successfully');
     }
@@ -70,7 +86,7 @@ class BrandAPIController extends AppBaseController
     public function show($id)
     {
         /** @var Brand $brand */
-        $brand = $this->brandRepository->find($id);
+        $brand = Brand::find($id);
 
         if (empty($brand)) {
             return $this->sendError('Brand not found');
@@ -90,16 +106,18 @@ class BrandAPIController extends AppBaseController
      */
     public function update($id, UpdateBrandAPIRequest $request)
     {
-        $input = $request->all();
-
         /** @var Brand $brand */
-        $brand = $this->brandRepository->find($id);
-
-        if (empty($brand)) {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (empty($brand = Brand::find($id))) {
             return $this->sendError('Brand not found');
+        } else if (!$user->can('update', $brand)) {
+            return $this->sendError('Forbidden', 403);
         }
 
-        $brand = $this->brandRepository->update($input, $id);
+        $input = $request->all();
+        $brand->update($input);
 
         return $this->sendResponse($brand->toArray(), 'Brand updated successfully');
     }
@@ -117,10 +135,13 @@ class BrandAPIController extends AppBaseController
     public function destroy($id)
     {
         /** @var Brand $brand */
-        $brand = $this->brandRepository->find($id);
-
-        if (empty($brand)) {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (empty($brand = Brand::find($id))) {
             return $this->sendError('Brand not found');
+        } else if (!$user->can('delete', $brand)) {
+            return $this->sendError('Forbidden', 403);
         }
 
         $brand->delete();

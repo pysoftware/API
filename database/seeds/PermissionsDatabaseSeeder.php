@@ -19,41 +19,58 @@ class PermissionsDatabaseSeeder extends Seeder
 
         /** ROLES */
         $roleAdmin = Role::create(['name' => 'admin',]);
-        $roleModerator = Role::create(['name' => 'moderator',]);
-        $roleWriter = Role::create(['name' => 'writer',]);
-        $roleUser = Role::create(['name' => 'user',]);
+        $roleCustomer = Role::create(['name' => 'customer',]);
+        $roleEmployee = Role::create(['name' => 'employee',]);
 
         /** PERMISSIONS */
-        $manageVacanciesPermission = Permission::create(['name' => 'manage vacancies']);
-        $manageCvsPermission = Permission::create(['name' => 'manage cvs']);
+        $createCustomersPermission = Permission::create(['name' => 'create customers']);
+        $createEmployeesPermission = Permission::create(['name' => 'create employees']);
+        $createCarsPermission = Permission::create(['name' => 'create cars']);
+        $createBrandsPermission = Permission::create(['name' => 'create brands']);
+        $createSalesPermission = Permission::create(['name' => 'create sales']);
 
-        $manageAdPermission = Permission::create(['name' => 'manage ad']);
-        $manageNewsPermission = Permission::create(['name' => 'manage news']);
-        $manageArticlesPermission = Permission::create(['name' => 'manage articles']);
+        $updateCustomersPermission = Permission::create(['name' => 'update customers']);
+        $updateEmployeesPermission = Permission::create(['name' => 'update employees']);
+        $updateCarsPermission = Permission::create(['name' => 'update cars']);
+        $updateBrandsPermission = Permission::create(['name' => 'update brands']);
+        $updateSalesPermission = Permission::create(['name' => 'update sales']);
 
-        $publicPermission  = Permission::create(['name' => 'public']);
+        $deleteCustomersPermission = Permission::create(['name' => 'delete customers']);
+        $deleteEmployeesPermission = Permission::create(['name' => 'delete employees']);
+        $deleteCarsPermission = Permission::create(['name' => 'delete cars']);
+        $deleteBrandsPermission = Permission::create(['name' => 'delete brands']);
+        $deleteSalesPermission = Permission::create(['name' => 'delete sales']);
+
 
         $roleAdmin->givePermissionTo([
-            $manageAdPermission,
-            $manageNewsPermission,
-            $manageArticlesPermission,
-            $manageVacanciesPermission,
-            $manageCvsPermission,
+            $createCustomersPermission,
+            $createEmployeesPermission,
+            $createBrandsPermission,
+            $createCarsPermission,
+            $createSalesPermission,
+
+            $updateCustomersPermission,
+            $updateEmployeesPermission,
+            $updateBrandsPermission,
+            $updateCarsPermission,
+            $updateSalesPermission,
+
+            $deleteCustomersPermission,
+            $deleteEmployeesPermission,
+            $deleteBrandsPermission,
+            $deleteCarsPermission,
+            $deleteSalesPermission,
         ]);
 
-        $roleModerator->givePermissionTo([
-            $manageVacanciesPermission,
-            $manageCvsPermission,
+        $roleCustomer->givePermissionTo([
+            $createCustomersPermission,
         ]);
 
-        $roleWriter->givePermissionTo([
-            $manageAdPermission,
-            $manageNewsPermission,
-            $manageArticlesPermission,
-        ]);
-
-        $roleUser->givePermissionTo([
-            $publicPermission,
+        $roleEmployee->givePermissionTo([
+            $createCustomersPermission,
+            $createSalesPermission,
+            $updateSalesPermission,
+            $deleteSalesPermission,
         ]);
     }
 }

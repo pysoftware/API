@@ -76,6 +76,7 @@ class RegisterController extends AppBaseController
     protected function register(RegistrationRequest $request)
     {
         $user = User::create($request->all());
+        $user->assignRole('customer');
         if (!$token = JWTAuth::fromUser($user)) {
             return $this->sendError('Unauthorized', 401);
         }

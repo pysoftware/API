@@ -4,11 +4,13 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Requests\API\CreateCustomerAPIRequest;
 use App\Http\Requests\API\UpdateCustomerAPIRequest;
+use App\Models\Brand;
 use App\Models\Customer;
+use App\Models\User;
 use App\Repositories\CustomerRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AppBaseController;
-use Response;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class CustomerController
@@ -23,6 +25,12 @@ class CustomerAPIController extends AppBaseController
     public function __construct(CustomerRepository $customerRepo)
     {
         $this->customerRepository = $customerRepo;
+        $this->middleware('auth.jwt', [
+            'except' => [
+                'index',
+                'show'
+            ]
+        ]);
     }
 
     /**
@@ -53,9 +61,17 @@ class CustomerAPIController extends AppBaseController
      */
     public function store(CreateCustomerAPIRequest $request)
     {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (!$user->can('create', Customer::class)) {
+            return $this->sendError('Forbidden', 403);
+        }
+
         $input = $request->all();
 
-        $customer = $this->customerRepository->create($input);
+        /** @var Customer $customer */
+        $customer = Customer::create($input);
 
         return $this->sendResponse($customer->toArray(), 'Customer saved successfully');
     }
@@ -71,7 +87,7 @@ class CustomerAPIController extends AppBaseController
     public function show($id)
     {
         /** @var Customer $customer */
-        $customer = $this->customerRepository->find($id);
+        $customer = Customer::find($id);
 
         if (empty($customer)) {
             return $this->sendError('Customer not found');
@@ -91,16 +107,17 @@ class CustomerAPIController extends AppBaseController
      */
     public function update($id, UpdateCustomerAPIRequest $request)
     {
-        $input = $request->all();
-
         /** @var Customer $customer */
-        $customer = $this->customerRepository->find($id);
-
-        if (empty($customer)) {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (empty($customer = Customer::find($id))) {
             return $this->sendError('Customer not found');
+        } else if (!$user->can('update', $customer)) {
+            return $this->sendError('Forbidden', 403);
         }
-
-        $customer = $this->customerRepository->update($input, $id);
+        $input = $request->all();
+        $customer->update($input);
 
         return $this->sendResponse($customer->toArray(), 'Customer updated successfully');
     }
@@ -118,10 +135,13 @@ class CustomerAPIController extends AppBaseController
     public function destroy($id)
     {
         /** @var Customer $customer */
-        $customer = $this->customerRepository->find($id);
-
-        if (empty($customer)) {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (empty($customer = Customer::find($id))) {
             return $this->sendError('Customer not found');
+        } else if (!$user->can('update', $customer)) {
+            return $this->sendError('Forbidden', 403);
         }
 
         $customer->delete();

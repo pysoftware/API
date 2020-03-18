@@ -112,11 +112,21 @@ class AuthAPIController extends AppBaseController
         /** @var User $user */
         $user = Auth::user();
 
+        $permissions = array_map(function ($item) {
+            return $item['name'];
+        }, $user->getAllPermissions()->toArray());
+
         if (empty($user)) {
             return $this->sendError('User not found');
         }
 
-        return $this->sendResponse($user, 'User retrieved');
+        return $this->sendResponse(
+            [
+                'roles' => $user->getRoleNames(),
+                'permissions' => $permissions,
+            ] + $user->toArray(),
+            'User retrieved'
+        );
     }
 
     /**

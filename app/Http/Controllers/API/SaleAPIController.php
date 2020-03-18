@@ -5,10 +5,11 @@ namespace App\Http\Controllers\API;
 use App\Http\Requests\API\CreateSaleAPIRequest;
 use App\Http\Requests\API\UpdateSaleAPIRequest;
 use App\Models\Sale;
+use App\Models\User;
 use App\Repositories\SaleRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AppBaseController;
-use Response;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class SaleController
@@ -23,6 +24,12 @@ class SaleAPIController extends AppBaseController
     public function __construct(SaleRepository $saleRepo)
     {
         $this->saleRepository = $saleRepo;
+        $this->middleware('auth.jwt', [
+            'except' => [
+                'index',
+                'show'
+            ]
+        ]);
     }
 
     /**
@@ -53,9 +60,16 @@ class SaleAPIController extends AppBaseController
      */
     public function store(CreateSaleAPIRequest $request)
     {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (!$user->can('create', Sale::class)) {
+            return $this->sendError('Forbidden', 403);
+        }
         $input = $request->all();
 
-        $sale = $this->saleRepository->create($input);
+        /** @var Sale $sale */
+        $sale = Sale::create($input);
 
         return $this->sendResponse($sale->toArray(), 'Sale saved successfully');
     }
@@ -71,7 +85,7 @@ class SaleAPIController extends AppBaseController
     public function show($id)
     {
         /** @var Sale $sale */
-        $sale = $this->saleRepository->find($id);
+        $sale = Sale::find($id);
 
         if (empty($sale)) {
             return $this->sendError('Sale not found');
@@ -91,16 +105,18 @@ class SaleAPIController extends AppBaseController
      */
     public function update($id, UpdateSaleAPIRequest $request)
     {
-        $input = $request->all();
-
         /** @var Sale $sale */
-        $sale = $this->saleRepository->find($id);
-
-        if (empty($sale)) {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (empty($sale = Sale::find($id))) {
             return $this->sendError('Sale not found');
+        } else if (!$user->can('update', $sale)) {
+            return $this->sendError('Forbidden', 403);
         }
 
-        $sale = $this->saleRepository->update($input, $id);
+        $input = $request->all();
+        $sale->update($input);
 
         return $this->sendResponse($sale->toArray(), 'Sale updated successfully');
     }
@@ -118,10 +134,13 @@ class SaleAPIController extends AppBaseController
     public function destroy($id)
     {
         /** @var Sale $sale */
-        $sale = $this->saleRepository->find($id);
-
-        if (empty($sale)) {
+        /** @var User $user */
+        if (!$user = Auth::user()) {
+            return $this->sendError('Unauthenticated', 401);
+        } else if (empty($sale = Sale::find($id))) {
             return $this->sendError('Sale not found');
+        } else if (!$user->can('delete', $sale)) {
+            return $this->sendError('Forbidden', 403);
         }
 
         $sale->delete();

@@ -42,11 +42,11 @@ class UsersDatabaseSeeder extends Seeder
             ]);
             $user->save();
             if ($i % 2 === 0) {
-                $user->assignRole('user');
+                $user->assignRole('customer');
             } elseif ($i % 10) {
-                $user->assignRole('moderator');
+                $user->assignRole('employee');
             } else {
-                $user->assignRole('writer');
+                $user->assignRole('admin');
             }
 
         }
@@ -57,9 +57,29 @@ class UsersDatabaseSeeder extends Seeder
             'last_name' => 'Админ',
             'patronymic' => 'Админ',
             'email' => 'admin',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('admin'),
         ]);
         $admin->save();
         $admin->assignRole('admin');
+
+        $employee = User::create([
+            'name' => 'EMPLOYEE',
+            'last_name' => 'EMPLOYEE',
+            'patronymic' => 'EMPLOYEE',
+            'email' => 'employee',
+            'password' => Hash::make('employee'),
+        ]);
+        $employee->save();
+        $employee->assignRole('employee');
+
+        $customer = User::create([
+            'name' => 'CUSTOMER',
+            'last_name' => 'CUSTOMER',
+            'patronymic' => 'CUSTOMER',
+            'email' => 'customer',
+            'password' => Hash::make('customer'),
+        ]);
+        $customer->save();
+        $customer->assignRole('customer');
     }
 }
