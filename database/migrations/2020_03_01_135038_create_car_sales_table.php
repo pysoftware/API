@@ -29,12 +29,14 @@ class CreateCarSalesTable extends Migration
             $table->foreign('car_id')
                 ->references('id')
                 ->on('cars')
-                ->onUpdate('cascade');
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
 
             $table->foreign('customer_id')
                 ->references('id')
                 ->on('customers')
-                ->onUpdate('cascade');
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }

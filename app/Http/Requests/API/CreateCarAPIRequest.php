@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\API;
 
+use App\Http\Requests\BaseAPIRequest;
 use App\Models\Car;
-use InfyOm\Generator\Request\APIRequest;
 
-class CreateCarAPIRequest extends APIRequest
+class CreateCarAPIRequest extends BaseAPIRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,5 +25,11 @@ class CreateCarAPIRequest extends APIRequest
     public function rules()
     {
         return Car::$rules;
+    }
+
+    public function messages() {
+        return [
+            'name.required' => 'Имя обязательно поле братюня'
+        ];
     }
 }

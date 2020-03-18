@@ -4,8 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Requests\API\CreateCarAPIRequest;
 use App\Http\Requests\API\UpdateCarAPIRequest;
+use App\Models\Brand;
 use App\Models\Car;
 use App\Repositories\CarRepository;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AppBaseController;
 use Response;
@@ -14,7 +16,6 @@ use Response;
  * Class CarController
  * @package App\Http\Controllers\API
  */
-
 class CarAPIController extends AppBaseController
 {
     /** @var  CarRepository */
@@ -30,7 +31,7 @@ class CarAPIController extends AppBaseController
      * GET|HEAD /cars
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function index(Request $request)
     {
@@ -49,7 +50,7 @@ class CarAPIController extends AppBaseController
      *
      * @param CreateCarAPIRequest $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function store(CreateCarAPIRequest $request)
     {
@@ -66,7 +67,7 @@ class CarAPIController extends AppBaseController
      *
      * @param int $id
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function show($id)
     {
@@ -76,8 +77,9 @@ class CarAPIController extends AppBaseController
         if (empty($car)) {
             return $this->sendError('Car not found');
         }
+        $brandsCount = Brand::count();
 
-        return $this->sendResponse($car->toArray(), 'Car retrieved successfully');
+        return $this->sendResponse(['brands_count' => $brandsCount] + $car->toArray(), 'Car retrieved successfully');
     }
 
     /**
@@ -87,7 +89,7 @@ class CarAPIController extends AppBaseController
      * @param int $id
      * @param UpdateCarAPIRequest $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update($id, UpdateCarAPIRequest $request)
     {
@@ -111,7 +113,7 @@ class CarAPIController extends AppBaseController
      *
      * @param int $id
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      * @throws \Exception
      *
      */
