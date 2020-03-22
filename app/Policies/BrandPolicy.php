@@ -16,7 +16,7 @@ class BrandPolicy
      */
     public function create(User $user)
     {
-        return $user->hasRole('admin');
+        return $user->hasRole('admin'); //true or false
     }
 
     /**

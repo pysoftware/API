@@ -153,7 +153,6 @@ class AuthAPIController extends AppBaseController
     }
 
     /**
-     * Obtain the user information from GitHub.
      *
      * @param Request $request
      * @return JsonResponse
