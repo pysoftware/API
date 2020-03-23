@@ -24,8 +24,6 @@ class CreateBrandAPIRequest extends BaseAPIRequest
      */
     public function rules()
     {
-        return [
-            'name' => 'string|unique:car_brands'
-        ];
+        return Brand::$rules;
     }
 }

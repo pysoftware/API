@@ -25,9 +25,9 @@ class UpdateSaleAPIRequest extends BaseAPIRequest
     public function rules()
     {
         return [
-            'employee_id' => 'exists:employees,id',
-            'car_id' => 'exists:cars,id',
-            'customer_id' => 'exists:customers,id',
+            'employee_id' => 'required|integer|exists:employees,id',
+            'car_id' => 'required|integer|exists:cars,id',
+            'customer_id' => 'required|integer|exists:customers,id',
         ];
     }
 }

@@ -63,7 +63,7 @@ class Car extends Model
         'name' => 'required|string|min:2|max:50',
         'color' => 'required|string|min:4|max:50',
         'price' => 'required|integer',
-        'release_year' => 'string',
+        'release_year' => 'date_format:Y-m-d',
         'brand_id' => 'required|integer|exists:car_brands,id'
     ];
 

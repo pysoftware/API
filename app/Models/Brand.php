@@ -57,6 +57,9 @@ class Brand extends Model
      * @var array
      */
     public static $rules = [
-
+        'name' => 'required|string|unique:car_brands|min:2|max:12',
+        'country' => 'required|string|min:6|max:12',
+        'plant' => 'string|min:6|max:12',
+        'address' => 'string|min:6|max:50'
     ];
 }

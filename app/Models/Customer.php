@@ -77,6 +77,10 @@ class Customer extends Model
      * @var array
      */
     public static $rules = [
-
+        'name' => 'required|string|min:4|max:12',
+        'patronymic' => 'string|min:4|max:12',
+        'last_name' => 'string|min:4|max:12',
+        'salary' => 'required|integer',
+        'experience' => 'integer'
     ];
 }

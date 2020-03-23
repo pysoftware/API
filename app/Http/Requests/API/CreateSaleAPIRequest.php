@@ -25,9 +25,9 @@ class CreateSaleAPIRequest extends BaseAPIRequest
     public function rules()
     {
         return [
-            'employee_id' => 'exists:employees,id',
-            'car_id' => 'exists:cars,id',
-            'customer_id' => 'exists:customers,id',
+            'employee_id' => 'required|integer',
+            'car_id' => 'required|integer',
+            'customer_id' => 'required|integer',
         ];
     }
 }
