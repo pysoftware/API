@@ -16,9 +16,9 @@ class RegistrationRequest extends BaseApiRequest
     {
         return [
             'email' => 'required|string|email|unique:users',
-            'name' => 'string|min:1',
-            'last_name' => 'string|min:3',
-            'patronymic' => 'string|min:3',
+            'name' => 'string|min:4',
+            'last_name' => 'string|min:6',
+            'patronymic' => 'string|min:6',
             'password' => 'required|string|confirmed|min:6'
         ];
     }

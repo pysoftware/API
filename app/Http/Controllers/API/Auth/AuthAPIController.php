@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\Auth;
 
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request as Request;
@@ -70,7 +71,7 @@ class AuthAPIController extends AppBaseController
      *
      * @return JsonResponse
      */
-    public function login()
+    public function login(LoginRequest $request)
     {
         $credentials = request(['email', 'password']);
 
